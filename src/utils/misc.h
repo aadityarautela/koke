@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#define debut_print(fmt, ...)                                                  \
+#define debug_print(fmt, ...)                                                  \
   do {                                                                         \
     if (DEBUG)                                                                 \
       fprintf(stderr, fmt, __VA_ARGS__);                                       \
