@@ -985,14 +985,6 @@ static uint8_t CLD(void) {
 }
 
 /*
-  SLD: Set Decimal Mode
-*/
-static uint8_t SLD(void) {
-  set_flag(D, 1);
-  return 0;
-}
-
-/*
   TAX: Transfer Accumulator to Index X
 */
 static uint8_t TAX(void) {
@@ -1030,6 +1022,52 @@ static uint8_t TSX(void) {
 */
 static uint8_t JMP(void) {
   cpu.pc = addr_abs;
+  return 0;
+}
+
+/*
+  BPL: Branch on Result Plus
+*/
+static uint8_t BPL(void) {
+  if (cpu_extract_sr(N) == 0) {
+    branch();
+  }
+  return 0;
+}
+
+/*
+  ROR: Rotate One Bit Right (Memory or Accumulator)
+*/
+static uint8_t ROR(void) {
+  fetch();
+  uint16_t tmp = (uint16_t)(cpu_extract_sr(C) << 7) | (fetched >> 1);
+
+  set_flag(Z, (tmp & 0x00FF) == 0x00);
+  set_flag(C, fetched & 0x0001);
+  set_flag(N, tmp & (1 << 7));
+
+  // Accumulator or Memory
+  if (lookup[op].mode == &IMP) {
+    cpu.ac = tmp & 0x00FF;
+  } else {
+    cpu_write(addr_abs, tmp & 0x00FF);
+  }
+  return 0;
+}
+
+/*
+  SED: Set Decimal Flag
+*/
+static uint8_t SED(void) {
+  set_flag(D, true);
+  return 0;
+}
+
+/*
+  TXS: Transfer Index X to Stack Register
+*/
+static uint8_t TXS(void) {
+  cpu.sp = cpu.x;
   return 0;
 }
 
